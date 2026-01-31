@@ -6,18 +6,20 @@ import { motion } from 'framer-motion';
 import api from '../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { CustomTooltip, ChartGradients, commonAxisStyles, CHART_COLORS } from '../components/charts/ChartTheme';
-import { Shield, AlertTriangle, CheckCircle, Activity, ChevronRight } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Activity, ChevronRight, MapPin } from 'lucide-react';
+import IntelligenceReview from '../components/IntelligenceReview';
 
 const Dashboard = () => {
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const [stats, setStats] = useState(null);
     const [recentCrimes, setRecentCrimes] = useState([]);
+    const [jurisdictionCrimes, setJurisdictionCrimes] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchDashboardData();
-    }, []);
+    }, [user?.city]);
 
     const fetchDashboardData = async () => {
         try {
@@ -28,6 +30,13 @@ const Dashboard = () => {
 
             setStats(statsRes.data.data);
             setRecentCrimes(crimesRes.data.data);
+
+            // Fetch local jurisdiction news for agents/admins
+            if (user?.city) {
+                const localRes = await api.get(`/crimes?city=${user.city}&limit=3`);
+                setJurisdictionCrimes(localRes.data.data);
+            }
+
             setLoading(false);
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
@@ -112,6 +121,39 @@ const Dashboard = () => {
                     </motion.div>
                 ))}
             </div>
+
+            {/* Intelligence Review for Admin */}
+            {user?.role === 'admin' && <IntelligenceReview />}
+
+            {/* Jurisdiction Watch for Agents */}
+            {user?.role === 'agent' && user?.city && (
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <MapPin className="w-5 h-5 text-accent-blue" />
+                        <h2 className="text-xl font-black text-white italic uppercase tracking-tight">Jurisdiction Watch: {user.city}</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {jurisdictionCrimes.map((crime) => (
+                            <div key={crime._id} className="glass-card p-6 border border-white/5 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-100 transition-opacity">
+                                    <Shield className="w-12 h-12 text-accent-blue" />
+                                </div>
+                                <div className="relative z-10">
+                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest mb-3 inline-block ${crime.severity === 'Critical' ? 'bg-danger-red/20 text-danger-red' : 'bg-accent-blue/20 text-accent-blue'
+                                        }`}>
+                                        {crime.severity} ALERT
+                                    </span>
+                                    <h3 className="text-white font-black text-sm mb-2 uppercase italic leading-tight">{crime.title}</h3>
+                                    <p className="text-gray-500 text-xs line-clamp-2 mb-4">{crime.description}</p>
+                                    <div className="text-[10px] text-gray-400 font-mono uppercase">
+                                        {new Date(crime.occurredAt).toLocaleDateString()} • {crime.crimeType}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

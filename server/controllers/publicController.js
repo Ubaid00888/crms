@@ -5,10 +5,10 @@ const CrimeEvent = require('../models/CrimeEvent');
 // @access  Public
 exports.getLatestCrimes = async (req, res) => {
     try {
-        const crimes = await CrimeEvent.find()
+        const crimes = await CrimeEvent.find({ isApproved: true })
             .sort({ occurredAt: -1 })
             .limit(10)
-            .select('title description crimeType severity location occurredAt');
+            .select('title description crimeType severity location occurredAt evidence source');
 
         res.json({
             success: true,
@@ -60,8 +60,8 @@ exports.getGlobalStats = async (req, res) => {
 // @access  Public
 exports.getMapData = async (req, res) => {
     try {
-        const crimes = await CrimeEvent.find()
-            .select('title crimeType severity location.coordinates location.city');
+        const crimes = await CrimeEvent.find({ isApproved: true })
+            .select('title crimeType severity location.coordinates location.city evidence');
 
         res.json({
             success: true,

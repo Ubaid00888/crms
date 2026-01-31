@@ -96,45 +96,23 @@ const generateMockCrime = () => {
     };
 };
 
-// Fetch and store global crimes
+const scraperService = require('./scraperService');
+
+// Fetch and store global crimes (AI Integrated)
 const fetchGlobalCrimes = async () => {
     try {
-        console.log('🌍 Fetching global crime feed...');
+        console.log('🌍 Initializing AI News Intelligence feed...');
+        const count = await scraperService.scrapeNews();
 
-        // In production, you would fetch from real APIs:
-        // const response = await axios.get('https://newsapi.org/v2/everything', {
-        //   params: {
-        //     q: 'crime OR robbery OR theft',
-        //     apiKey: process.env.NEWS_API_KEY,
-        //     language: 'en',
-        //     sortBy: 'publishedAt',
-        //   }
-        // });
-
-        // For demo, generate 2-5 mock crimes
-        const numCrimes = Math.floor(Math.random() * 4) + 2;
-        const crimes = [];
-
-        for (let i = 0; i < numCrimes; i++) {
-            const crimeData = generateMockCrime();
-            const crime = await CrimeEvent.create(crimeData);
-            crimes.push(crime);
-
-            // Emit real-time alert
-            if (global.emitToAll) {
-                global.emitToAll('crime-alert', {
-                    id: crime._id,
-                    title: crime.title,
-                    crimeType: crime.crimeType,
-                    severity: crime.severity,
-                    location: crime.location,
-                    occurredAt: crime.occurredAt,
-                });
-            }
+        // Real-time notification for admin dashboard
+        if (global.emitToAll && count > 0) {
+            global.emitToAll('new-intel-alert', {
+                message: `${count} new intelligence reports pending review.`,
+                timestamp: new Date()
+            });
         }
 
-        console.log(`✅ Added ${crimes.length} global crime events`);
-        return crimes;
+        return count;
     } catch (error) {
         console.error('❌ Error fetching global crimes:', error.message);
     }
@@ -168,6 +146,9 @@ const initCronJobs = () => {
     // Run once on startup with error handling
     setTimeout(async () => {
         try {
+            console.log('🧹 Cleaning up unapproved news reports for fresh AI ingestion...');
+            await CrimeEvent.deleteMany({ isApproved: false, source: 'News' });
+
             await fetchGlobalCrimes();
             await syncMostWanted();
         } catch (error) {

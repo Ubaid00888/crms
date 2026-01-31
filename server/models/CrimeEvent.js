@@ -88,11 +88,20 @@ const crimeEventSchema = new mongoose.Schema({
         enum: ['Reported', 'Under Investigation', 'Solved', 'Cold Case', 'Closed'],
         default: 'Reported',
     },
+    isApproved: {
+        type: Boolean,
+        default: false,
+    },
+    contentHash: {
+        type: String,
+        unique: true,
+        sparse: true,
+    },
 
     // Source (for global feed)
     source: {
         type: String,
-        enum: ['Manual', 'API', 'News', 'External'],
+        enum: ['Manual', 'API', 'News', 'External', 'Intelligence'],
         default: 'Manual',
     },
     sourceUrl: String,

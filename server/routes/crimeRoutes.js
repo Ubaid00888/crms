@@ -4,8 +4,8 @@ const {
     getCrimeEvents,
     getCrimeEvent,
     createCrimeEvent,
-    updateCrimeEvent,
     deleteCrimeEvent,
+    approveCrimeEvent,
     getCrimesNearLocation,
     getCrimeStats,
 } = require('../controllers/crimeController');
@@ -25,5 +25,7 @@ router.route('/:id')
     .get(getCrimeEvent)
     .put(auditLogger('UPDATE', 'crime'), updateCrimeEvent)
     .delete(authorize('admin'), auditLogger('DELETE', 'crime'), deleteCrimeEvent);
+
+router.patch('/:id/approve', authorize('admin'), auditLogger('APPROVE', 'crime'), approveCrimeEvent);
 
 module.exports = router;

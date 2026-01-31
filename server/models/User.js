@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'analyst', 'agent'],
         default: 'agent',
     },
+    city: {
+        type: String,
+        default: 'Karachi', // Default city for demonstration
+    },
     fullName: {
         type: String,
         required: true,

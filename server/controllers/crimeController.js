@@ -19,6 +19,15 @@ exports.getCrimeEvents = async (req, res) => {
             if (endDate) query.occurredAt.$lte = new Date(endDate);
         }
 
+        // Only show approved crimes to public/agents, Admin sees all
+        if (req.query.pending === 'true' && req.user.role === 'admin') {
+            query.isApproved = false;
+        } else if (req.user.role !== 'admin') {
+            query.isApproved = true;
+        } else if (req.query.approved === 'true') {
+            query.isApproved = true;
+        }
+
         const crimes = await CrimeEvent.find(query)
             .populate('suspects', 'firstName lastName photo')
             .populate('reportedBy', 'username fullName')
@@ -72,6 +81,7 @@ exports.createCrimeEvent = async (req, res) => {
         const crimeData = {
             ...req.body,
             reportedBy: req.user.id,
+            isApproved: req.user.role === 'admin' || req.user.role === 'agent', // Manual reports by staff are auto-approved
         };
 
         const crime = await CrimeEvent.create(crimeData);
@@ -107,6 +117,46 @@ exports.updateCrimeEvent = async (req, res) => {
 
         if (!crime) {
             return res.status(404).json({ success: false, message: 'Crime event not found' });
+        }
+
+        res.json({ success: true, data: crime });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Approve/Reject intelligence report
+// @route   PATCH /api/crimes/:id/approve
+// @access  Private (Admin only)
+exports.approveCrimeEvent = async (req, res) => {
+    try {
+        const { approved, severity, crimeType } = req.body;
+
+        if (!approved) {
+            await CrimeEvent.findByIdAndDelete(req.params.id);
+            return res.json({ success: true, message: 'Intelligence report rejected and deleted.' });
+        }
+
+        const crime = await CrimeEvent.findByIdAndUpdate(
+            req.params.id,
+            { isApproved: true, severity, crimeType },
+            { new: true }
+        );
+
+        if (!crime) {
+            return res.status(404).json({ success: false, message: 'Crime report not found' });
+        }
+
+        // Emit real-time alert for newly approved crime
+        if (global.emitToAll) {
+            global.emitToAll('crime-alert', {
+                id: crime._id,
+                title: crime.title,
+                crimeType: crime.crimeType,
+                severity: crime.severity,
+                location: crime.location,
+                occurredAt: crime.occurredAt,
+            });
         }
 
         res.json({ success: true, data: crime });
