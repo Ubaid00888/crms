@@ -1,0 +1,18 @@
+{
+  "name": "crms",
+  "version": "1.0.0",
+  "description": "Crime Management System - Final Year Project",
+  "scripts": {
+    "install-all": "cd server && npm install && cd ../client && npm install",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "seed": "cd server && npm run seed"
+  },
+  "keywords": [
+    "crime",
+    "management",
+    "mern",
+    "intelligence"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
