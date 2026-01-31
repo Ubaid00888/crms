@@ -290,12 +290,12 @@ const MostWanted = () => {
                             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                         >
                             {[...Array(8)].map((_, i) => (
-                                <div key={i} className="bg-[#1a1f35] border border-gray-800 rounded-xl h-[400px] animate-pulse">
-                                    <div className="h-64 bg-gray-800/50 rounded-t-xl" />
-                                    <div className="p-5 space-y-3">
-                                        <div className="h-6 bg-gray-800/50 rounded w-3/4" />
-                                        <div className="h-4 bg-gray-800/50 rounded w-1/2" />
-                                        <div className="h-4 bg-gray-800/50 rounded w-full" />
+                                <div key={i} className="bg-[#0a0f1d] border border-white/5 rounded-xl h-[400px] animate-pulse flex flex-col">
+                                    <div className="h-48 bg-white/5 rounded-t-xl" />
+                                    <div className="p-5 space-y-4">
+                                        <div className="h-6 bg-white/5 rounded w-3/4" />
+                                        <div className="h-10 bg-white/5 rounded w-full" />
+                                        <div className="h-10 bg-white/5 rounded w-full mt-auto" />
                                     </div>
                                 </div>
                             ))}

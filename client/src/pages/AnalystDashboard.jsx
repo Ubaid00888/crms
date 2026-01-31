@@ -6,7 +6,6 @@ import api from '../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 import { CustomTooltip, ChartGradients, commonAxisStyles, CHART_COLORS } from '../components/charts/ChartTheme';
 import { Shield, Activity, Map, AlertTriangle, Terminal, Database, Cpu } from 'lucide-react';
-import MostWantedDashboardGrid from '../components/Dashboard/MostWantedDashboardGrid';
 
 const AnalystDashboard = () => {
     const { user } = useSelector((state) => state.auth);
@@ -104,9 +103,6 @@ const AnalystDashboard = () => {
 
                 {/* Left Column (Stats & Charts) */}
                 <div className="lg:col-span-8 space-y-6">
-                    {/* Most Wanted Priority Intelligence */}
-                    <MostWantedDashboardGrid limit={4} title="Analyst Command: Priority Intelligence" />
-
                     {/* KPI Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[

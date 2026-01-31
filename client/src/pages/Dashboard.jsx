@@ -7,7 +7,6 @@ import api from '../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { CustomTooltip, ChartGradients, commonAxisStyles, CHART_COLORS } from '../components/charts/ChartTheme';
 import { Shield, AlertTriangle, CheckCircle, Activity, ChevronRight, MapPin } from 'lucide-react';
-import MostWantedDashboardGrid from '../components/Dashboard/MostWantedDashboardGrid';
 
 const Dashboard = () => {
     const { user } = useSelector((state) => state.auth);
@@ -121,9 +120,6 @@ const Dashboard = () => {
                     </motion.div>
                 ))}
             </div>
-
-            {/* Most Wanted Priority Intelligence */}
-            <MostWantedDashboardGrid limit={4} />
 
 
 
