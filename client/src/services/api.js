@@ -28,6 +28,19 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // Handle network errors (server not reachable)
+        if (!error.response) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Connection Error',
+                text: 'Cannot connect to server. Please ensure the server is running on port 5000.',
+                background: '#1a1f35',
+                color: '#fff',
+                confirmButtonColor: '#00d4ff',
+            });
+            return Promise.reject(error);
+        }
+
         // Handle 401 errors (token expired)
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
@@ -36,11 +49,19 @@ api.interceptors.response.use(
                 const refreshToken = localStorage.getItem('refreshToken');
                 if (refreshToken) {
                     const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
-                    localStorage.setItem('token', data.data.token);
-                    localStorage.setItem('refreshToken', data.data.refreshToken);
 
-                    originalRequest.headers.Authorization = `Bearer ${data.data.token}`;
-                    return api(originalRequest);
+                    // Safely access nested data
+                    const newToken = data?.data?.token;
+                    const newRefreshToken = data?.data?.refreshToken;
+
+                    if (newToken && newRefreshToken) {
+                        localStorage.setItem('token', newToken);
+                        localStorage.setItem('refreshToken', newRefreshToken);
+                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                        return api(originalRequest);
+                    } else {
+                        throw new Error('Invalid token refresh response');
+                    }
                 }
             } catch (refreshError) {
                 localStorage.removeItem('token');

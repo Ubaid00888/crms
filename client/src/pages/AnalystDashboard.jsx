@@ -3,8 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
 import { motion } from 'framer-motion';
 import api from '../services/api';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Shield, Activity, Map, AlertTriangle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
+import { CustomTooltip, ChartGradients, commonAxisStyles, CHART_COLORS } from '../components/charts/ChartTheme';
+import { Shield, Activity, Map, AlertTriangle, Terminal, Database, Cpu } from 'lucide-react';
 
 const AnalystDashboard = () => {
     const { user } = useSelector((state) => state.auth);
@@ -139,14 +140,18 @@ const AnalystDashboard = () => {
                         <div className="h-[300px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={stats?.crimesByType || []}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                                    <XAxis dataKey="_id" stroke="#6b7280" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#6b7280" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#0a0e1a', border: '1px solid #ffffff20', borderRadius: '4px' }}
-                                        labelStyle={{ color: '#9ca3af', fontSize: '10px', textTransform: 'uppercase' }}
+                                    <ChartGradients />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                                    <XAxis dataKey="_id" {...commonAxisStyles} />
+                                    <YAxis {...commonAxisStyles} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
+                                    <Bar
+                                        dataKey="count"
+                                        name="Incidents"
+                                        fill="url(#purpleGradient)"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={35}
                                     />
-                                    <Bar dataKey="count" fill="#00d4ff" radius={[4, 4, 0, 0]} barSize={40} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -164,16 +169,25 @@ const AnalystDashboard = () => {
                                             cx="50%"
                                             cy="50%"
                                             innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={5}
+                                            outerRadius={85}
+                                            paddingAngle={8}
+                                            stroke="none"
                                             dataKey="count"
                                         >
                                             {stats?.crimesBySeverity?.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                <Cell
+                                                    key={`cell-${index}`}
+                                                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                                                    style={{ filter: 'drop-shadow(0 0 5px rgba(0,0,0,0.3))' }}
+                                                />
                                             ))}
                                         </Pie>
-                                        <Tooltip
-                                            contentStyle={{ backgroundColor: '#0a0e1a', border: '1px solid #ffffff20', borderRadius: '4px' }}
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend
+                                            verticalAlign="bottom"
+                                            align="center"
+                                            iconType="circle"
+                                            formatter={(value) => <span className="text-[10px] uppercase font-bold text-gray-500 ml-1">{value}</span>}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -182,21 +196,33 @@ const AnalystDashboard = () => {
 
                         <div className="glass-card p-6">
                             <h3 className="font-bold text-sm mb-4 uppercase tracking-widest text-gray-400">System Status</h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Database Connection</span>
-                                    <span className="text-success-green font-bold">Stable</span>
+                            <div className="space-y-5">
+                                <div className="flex justify-between items-center group">
+                                    <div className="flex items-center gap-3">
+                                        <Database className="w-4 h-4 text-success-green opacity-40 group-hover:opacity-100 transition-opacity" />
+                                        <span className="text-gray-400 text-xs font-mono">DB_CLUSTER_LINK</span>
+                                    </div>
+                                    <span className="text-success-green font-bold text-xs tracking-widest">ENCRYPTED</span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Live Feed Latency</span>
-                                    <span className="text-accent-blue font-bold">~24ms</span>
+                                <div className="flex justify-between items-center group">
+                                    <div className="flex items-center gap-3">
+                                        <Activity className="w-4 h-4 text-accent-blue opacity-40 group-hover:opacity-100 transition-opacity" />
+                                        <span className="text-gray-400 text-xs font-mono">LATENCY_P99</span>
+                                    </div>
+                                    <span className="text-accent-blue font-bold text-xs tracking-widest">~24MS</span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400">Predictive Engine</span>
-                                    <span className="text-accent-purple font-bold">Training (94%)</span>
+                                <div className="flex justify-between items-center group">
+                                    <div className="flex items-center gap-3">
+                                        <Cpu className="w-4 h-4 text-accent-purple opacity-40 group-hover:opacity-100 transition-opacity" />
+                                        <span className="text-gray-400 text-xs font-mono">NEURAL_ENGINE</span>
+                                    </div>
+                                    <span className="text-accent-purple font-bold text-xs tracking-widest text-glow">94.8% ACC</span>
                                 </div>
-                                <div className="mt-6 p-3 bg-white/5 rounded border border-white/5 text-xs text-gray-500 font-mono leading-relaxed">
-                                    System running in READ-ONLY mode for analyst session. Administrative actions are disabled.
+                                <div className="mt-4 p-4 bg-white/5 rounded-xl border border-white/5 flex gap-3">
+                                    <Terminal className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
+                                    <p className="text-[10px] text-gray-500 font-mono leading-relaxed">
+                                        Read-only analyst stream enabled. Sub-system protocols active. Security clearing verified for current session.
+                                    </p>
                                 </div>
                             </div>
                         </div>

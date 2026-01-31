@@ -144,23 +144,36 @@ const fetchGlobalCrimes = async () => {
 const initCronJobs = () => {
     // Run every 30 minutes
     cron.schedule('*/30 * * * *', async () => {
-        console.log('⏰ Running scheduled global crime feed update...');
-        await fetchGlobalCrimes();
+        try {
+            console.log('⏰ Running scheduled global crime feed update...');
+            await fetchGlobalCrimes();
+        } catch (error) {
+            console.error('❌ Error in scheduled crime feed update:', error.message);
+        }
     });
 
     // Run Most Wanted sync daily at midnight
     cron.schedule('0 0 * * *', async () => {
-        console.log('⏰ Running scheduled Most Wanted sync...');
-        await syncMostWanted();
-        await archiveOldRecords();
+        try {
+            console.log('⏰ Running scheduled Most Wanted sync...');
+            await syncMostWanted();
+            await archiveOldRecords();
+        } catch (error) {
+            console.error('❌ Error in scheduled Most Wanted sync:', error.message);
+        }
     });
 
     console.log('✅ Cron jobs initialized - Global crime feed will update every 30 minutes');
 
-    // Run once on startup
+    // Run once on startup with error handling
     setTimeout(async () => {
-        await fetchGlobalCrimes();
-        await syncMostWanted();
+        try {
+            await fetchGlobalCrimes();
+            await syncMostWanted();
+        } catch (error) {
+            console.error('❌ Error during startup sync:', error.message);
+            // Don't crash the server, just log the error
+        }
     }, 5000); // Wait 5 seconds after server start
 };
 

@@ -127,3 +127,35 @@ body {
     transform: translateY(0);
   }
 }
+
+@keyframes markerPulse {
+  0% {
+    stroke-width: 2px;
+    stroke-opacity: 1;
+  }
+
+  50% {
+    stroke-width: 8px;
+    stroke-opacity: 0.3;
+  }
+
+  100% {
+    stroke-width: 2px;
+    stroke-opacity: 1;
+  }
+}
+
+.pulse-marker {
+  animation: markerPulse 2s infinite ease-in-out;
+}
+
+.auth-popup .leaflet-popup-content-wrapper {
+  background: #0a0f1d !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.auth-popup .leaflet-popup-tip {
+  background: #0a0f1d !important;
+}

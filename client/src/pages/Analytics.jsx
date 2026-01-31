@@ -157,10 +157,16 @@ const Analytics = () => {
         node.append('circle')
             .attr('r', d => d.size)
             .attr('fill', d => d.color)
-            .attr('fill-opacity', 0.8)
-            .attr('stroke', '#fff')
+            .attr('fill-opacity', 0.2)
+            .attr('stroke', d => d.color)
             .attr('stroke-width', 2)
-            .attr('class', 'cursor-pointer hover:filter-brightness-125 transition-all');
+            .attr('class', 'cursor-pointer hover:stroke-white transition-all duration-300');
+
+        // Glowing center
+        node.append('circle')
+            .attr('r', 4)
+            .attr('fill', '#fff')
+            .attr('class', 'pointer-events-none');
 
         // Node labels
         node.append('text')
@@ -287,12 +293,13 @@ const Analytics = () => {
                                     <CircleMarker
                                         key={crime._id}
                                         center={[lat, lng]}
-                                        radius={crime.severity === 'Critical' ? 10 : crime.severity === 'High' ? 7 : 5}
+                                        radius={crime.severity === 'Critical' ? 12 : crime.severity === 'High' ? 9 : 6}
                                         fillColor={getSeverityColor(crime.severity)}
                                         color="#fff"
-                                        weight={1}
-                                        opacity={0.8}
-                                        fillOpacity={0.6}
+                                        weight={2}
+                                        opacity={1}
+                                        fillOpacity={0.8}
+                                        className="pulse-marker shadow-2xl"
                                     >
                                         <Popup>
                                             <div className="text-sm">

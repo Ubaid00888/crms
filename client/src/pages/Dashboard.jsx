@@ -4,7 +4,9 @@ import { logout } from '../store/authSlice';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '../services/api';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { CustomTooltip, ChartGradients, commonAxisStyles, CHART_COLORS } from '../components/charts/ChartTheme';
+import { Shield, AlertTriangle, CheckCircle, Activity, ChevronRight } from 'lucide-react';
 
 const Dashboard = () => {
     const { user } = useSelector((state) => state.auth);
@@ -66,143 +68,145 @@ const Dashboard = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="glass-card p-6 cyber-border"
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Total Crimes</p>
-                            <p className="text-3xl font-bold text-white mt-2">{stats?.totalCrimes || 0}</p>
+                {[
+                    { label: 'Total Crimes', val: stats?.totalCrimes, icon: Activity, color: 'text-accent-blue', bg: 'bg-accent-blue/10' },
+                    {
+                        label: 'Active Cases',
+                        val: stats?.crimesByStatus?.find(s => s._id === 'Under Investigation')?.count || 0,
+                        icon: Shield,
+                        color: 'text-accent-purple',
+                        bg: 'bg-accent-purple/10'
+                    },
+                    {
+                        label: 'Critical Priority',
+                        val: stats?.crimesBySeverity?.find(s => s._id === 'Critical')?.count || 0,
+                        icon: AlertTriangle,
+                        color: 'text-danger-red',
+                        bg: 'bg-danger-red/10'
+                    },
+                    {
+                        label: 'Solved Cases',
+                        val: stats?.crimesByStatus?.find(s => s._id === 'Solved')?.count || 0,
+                        icon: CheckCircle,
+                        color: 'text-success-green',
+                        bg: 'bg-success-green/10'
+                    }
+                ].map((stat, i) => (
+                    <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                        className="glass-card p-6 border-b-2 border-transparent hover:border-accent-blue/30 transition-all duration-300"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1">{stat.label}</p>
+                                <p className={`text-4xl font-black ${stat.color} tracking-tighter`}>{stat.val || 0}</p>
+                            </div>
+                            <div className={`p-4 ${stat.bg} rounded-2xl border border-white/5 shadow-inner`}>
+                                <stat.icon className={`w-6 h-6 ${stat.color} opacity-80`} />
+                            </div>
                         </div>
-                        <div className="p-3 bg-accent-blue/20 rounded-lg">
-                            <svg className="w-8 h-8 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="glass-card p-6 cyber-border"
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Active Cases</p>
-                            <p className="text-3xl font-bold text-white mt-2">
-                                {stats?.crimesByStatus?.find(s => s._id === 'Under Investigation')?.count || 0}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-accent-purple/20 rounded-lg">
-                            <svg className="w-8 h-8 text-accent-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="glass-card p-6 cyber-border"
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Critical Severity</p>
-                            <p className="text-3xl font-bold text-white mt-2">
-                                {stats?.crimesBySeverity?.find(s => s._id === 'Critical')?.count || 0}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-danger-red/20 rounded-lg">
-                            <svg className="w-8 h-8 text-danger-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="glass-card p-6 cyber-border"
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Solved Cases</p>
-                            <p className="text-3xl font-bold text-white mt-2">
-                                {stats?.crimesByStatus?.find(s => s._id === 'Solved')?.count || 0}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-success-green/20 rounded-lg">
-                            <svg className="w-8 h-8 text-success-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                ))}
             </div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 {/* Crime Types Chart */}
                 <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="glass-card p-6"
+                    className="glass-card p-8 border border-white/5"
                 >
-                    <h3 className="text-xl font-bold text-white mb-4">Crime Types Distribution</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={stats?.crimesByType?.slice(0, 5) || []}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                            <XAxis dataKey="_id" stroke="#9ca3af" />
-                            <YAxis stroke="#9ca3af" />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1a1f35', border: '1px solid #ffffff20', borderRadius: '8px' }}
-                                labelStyle={{ color: '#fff' }}
-                            />
-                            <Bar dataKey="count" fill="#00d4ff" />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 className="text-xl font-black text-white tracking-tight uppercase italic">Crime Distribution</h3>
+                            <p className="text-[10px] text-gray-500 font-bold tracking-[0.2em] uppercase">Tactical incident classification</p>
+                        </div>
+                        <div className="w-10 h-10 bg-accent-blue/5 rounded-lg flex items-center justify-center border border-accent-blue/10">
+                            <Activity className="w-5 h-5 text-accent-blue" />
+                        </div>
+                    </div>
+                    <div className="h-[300px] w-full mt-4">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={stats?.crimesByType?.slice(0, 5) || []}>
+                                <ChartGradients />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                                <XAxis dataKey="_id" {...commonAxisStyles} />
+                                <YAxis {...commonAxisStyles} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
+                                <Bar
+                                    dataKey="count"
+                                    name="Incidents"
+                                    fill="url(#cyanGradient)"
+                                    radius={[8, 8, 0, 0]}
+                                    barSize={45}
+                                    animationDuration={1500}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </motion.div>
 
                 {/* Severity Distribution */}
                 <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="glass-card p-6"
+                    className="glass-card p-8 border border-white/5 flex flex-col"
                 >
-                    <h3 className="text-xl font-bold text-white mb-4">Severity Distribution</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={stats?.crimesBySeverity || []}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ _id, percent }) => `${_id}: ${(percent * 100).toFixed(0)}%`}
-                                outerRadius={100}
-                                fill="#8884d8"
-                                dataKey="count"
-                                nameKey="_id"
-                            >
-                                {stats?.crimesBySeverity?.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1a1f35', border: '1px solid #ffffff20', borderRadius: '8px' }}
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 className="text-xl font-black text-white tracking-tight uppercase italic">Threat Matrix</h3>
+                            <p className="text-[10px] text-gray-500 font-bold tracking-[0.2em] uppercase">Severity level saturation</p>
+                        </div>
+                        <div className="w-10 h-10 bg-danger-red/5 rounded-lg flex items-center justify-center border border-danger-red/10">
+                            <AlertTriangle className="w-5 h-5 text-danger-red" />
+                        </div>
+                    </div>
+                    <div className="flex-1 min-h-[300px] w-full relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={stats?.crimesBySeverity || []}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={70}
+                                    outerRadius={100}
+                                    paddingAngle={8}
+                                    dataKey="count"
+                                    nameKey="_id"
+                                    stroke="none"
+                                >
+                                    {stats?.crimesBySeverity?.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                                            style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))' }}
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip content={<CustomTooltip />} />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    align="center"
+                                    iconType="circle"
+                                    formatter={(value) => <span className="text-[10px] uppercase font-black tracking-widest text-gray-400 ml-2">{value}</span>}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        {/* Center Text for Donut */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none mb-4">
+                            <div className="text-center">
+                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Global</p>
+                                <p className="text-2xl font-black text-white italic">LEVELS</p>
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
             </div>
 
@@ -211,9 +215,18 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="glass-card p-6"
+                className="glass-card p-8 border border-white/5"
             >
-                <h3 className="text-xl font-bold text-white mb-4">Recent Crime Events</h3>
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-accent-blue rounded-full" />
+                        <h3 className="text-xl font-black text-white tracking-tight uppercase italic">Live Intel Reports</h3>
+                    </div>
+                    <Link to="/crimes" className="text-[10px] font-black uppercase text-accent-blue hover:underline tracking-widest flex items-center gap-1 group">
+                        VIEW ENTIRE LOG <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
