@@ -11,6 +11,7 @@ import Analytics from './pages/Analytics';
 import MostWanted from './pages/MostWanted';
 import QRLogin from './pages/QRLogin';
 import UserManagement from './pages/admin/UserManagement';
+import IntelReview from './pages/admin/IntelReview';
 import AnalystDashboard from './pages/AnalystDashboard';
 import DashboardLayout from './components/Layout/DashboardLayout';
 import './index.css';
@@ -101,6 +102,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/intelligence"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <IntelReview />
             </ProtectedRoute>
           }
         />

@@ -26,6 +26,7 @@ const Sidebar = () => {
         ],
         admin: [
             { path: '/admin/users', label: 'User Management', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+            { path: '/admin/intelligence', label: 'Intelligence Review', icon: 'M12 2L3 7v9c0 5 9 11 9 11s9-6 9-11V7l-9-5z' },
             { path: '/users', label: 'Legacy Access', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
             { path: '/logs', label: 'System Logs', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
         ]

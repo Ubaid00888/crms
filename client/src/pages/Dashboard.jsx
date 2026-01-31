@@ -7,7 +7,6 @@ import api from '../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { CustomTooltip, ChartGradients, commonAxisStyles, CHART_COLORS } from '../components/charts/ChartTheme';
 import { Shield, AlertTriangle, CheckCircle, Activity, ChevronRight, MapPin } from 'lucide-react';
-import IntelligenceReview from '../components/IntelligenceReview';
 
 const Dashboard = () => {
     const { user } = useSelector((state) => state.auth);
@@ -122,8 +121,7 @@ const Dashboard = () => {
                 ))}
             </div>
 
-            {/* Intelligence Review for Admin */}
-            {user?.role === 'admin' && <IntelligenceReview />}
+
 
             {/* Jurisdiction Watch for Agents */}
             {user?.role === 'agent' && user?.city && (
