@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Globe, Shield } from 'lucide-react';
+import { Globe, Shield, Eye } from 'lucide-react';
 
 const MostWantedCard = ({ criminal, onReadMore }) => {
     const mainImage = criminal.images && criminal.images.length > 0
@@ -26,7 +26,7 @@ const MostWantedCard = ({ criminal, onReadMore }) => {
                 {/* Image Overlay/Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${criminal.sourceAgency === 'FBI' ? 'bg-red-500/20 text-red-500 border border-red-500/50' :
-                            'bg-blue-500/20 text-blue-500 border border-blue-500/50'
+                        'bg-blue-500/20 text-blue-500 border border-blue-500/50'
                         }`}>
                         {criminal.sourceAgency}
                     </span>
@@ -68,9 +68,9 @@ const MostWantedCard = ({ criminal, onReadMore }) => {
                 <div className="flex gap-2 pt-3 border-t border-gray-800">
                     <button
                         onClick={() => onReadMore && onReadMore(criminal)}
-                        className="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-bold py-2 rounded transition-colors"
+                        className="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-bold py-2 rounded transition-colors flex items-center justify-center gap-2"
                     >
-                        READ MORE
+                        <Eye className="w-3 h-3" /> VIEW PROFILE
                     </button>
                     <a
                         href={criminal.detailsUrl}
